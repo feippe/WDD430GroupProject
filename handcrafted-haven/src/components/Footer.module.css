@@ -1,0 +1,13 @@
+.footer {
+  width: 100%;
+  background-color: #1f2937; /* Un color oscuro para contrastar */
+  color: #d1d5db; /* Texto de color gris claro */
+  padding: 2rem;
+  margin-top: auto; /* ¡Esta línea es importante! */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}

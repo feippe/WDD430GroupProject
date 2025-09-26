@@ -5,10 +5,10 @@ export default function CatalogPage() {
     <main className={styles.main}>
       <h1 className={styles.title}>Nuestro Catálogo</h1>
       <div className={styles.grid}>
-        <div className={styles.productCard}>Producto 1</div>
-        <div className={styles.productCard}>Producto 2</div>
-        <div className={styles.productCard}>Producto 3</div>
-        <div className={styles.productCard}>Producto 4</div>
+        <a href='/product/1' className={styles.productCard}>Producto 1</a>
+        <a href='/product/2' className={styles.productCard}>Producto 2</a>
+        <a href='/product/3' className={styles.productCard}>Producto 3</a>
+        <a href='/product/4' className={styles.productCard}>Producto 4</a>
       </div>
     </main>
   );
