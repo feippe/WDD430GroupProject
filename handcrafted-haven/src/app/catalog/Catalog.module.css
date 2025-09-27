@@ -1,13 +1,25 @@
 .main {
-  padding: 2rem;
+  padding: 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
 .title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .grid {
@@ -16,9 +28,9 @@
   gap: 2rem;
 }
 
-.productCard {
-  border: 1px solid #e5e7eb;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+.noProducts {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6b7280;
+  padding: 4rem 0;
 }

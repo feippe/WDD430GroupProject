@@ -1,0 +1,32 @@
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.link {
+  background-color: #1f2937;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.link:hover {
+  background-color: #374151;
+}
+
+.disabled {
+  background-color: #9ca3af;
+  pointer-events: none; /* Disables clicks */
+  cursor: not-allowed;
+}
+
+.text {
+  font-weight: 500;
+  color: #4b5563;
+}
