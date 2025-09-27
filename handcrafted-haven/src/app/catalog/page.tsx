@@ -1,14 +1,21 @@
+import { PrismaClient, Product } from '@prisma/client';
+import ProductCard from '@/components/ProductCard';
 import styles from './Catalog.module.css';
 
-export default function CatalogPage() {
+const prisma = new PrismaClient();
+
+export default async function CatalogPage() {
+  
+  const products = await prisma.product.findMany();
+
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>Nuestro Catálogo</h1>
+      <h1 className={styles.title}>Catalog</h1>
       <div className={styles.grid}>
-        <a href='/product/1' className={styles.productCard}>Producto 1</a>
-        <a href='/product/2' className={styles.productCard}>Producto 2</a>
-        <a href='/product/3' className={styles.productCard}>Producto 3</a>
-        <a href='/product/4' className={styles.productCard}>Producto 4</a>
+        {/*  */}
+        {products.map((product: Product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </main>
   );

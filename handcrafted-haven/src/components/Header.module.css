@@ -39,3 +39,17 @@
   color: #111827;
   border-bottom-color: #3b82f6;
 }
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav {
+    gap: 1rem;
+  }
+}
