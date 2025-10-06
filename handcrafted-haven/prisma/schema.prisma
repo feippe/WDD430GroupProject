@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -13,11 +9,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 1. USER MODEL (Using CUID for guaranteed type safety)
+model User {
+  id        String    @id @default(cuid()) // CRITICAL FIX: Use CUID
+  email     String    @unique
+  password  String    @db.Text
+  name      String?
+  role      String    @default("buyer")
+  
+  products  Product[]
+  reviews   Review[]
+
+  @@map("users")
+}
+
+// 2. PRODUCT MODEL (Using CUID for consistency and adding missing fields)
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid()) // CRITICAL FIX: Use CUID
   name        String
-  price       Float    
+  price       Float
   imageUrl    String
   description String   @db.Text
   createdAt   DateTime @default(now())
+  
+  category    String   // Required for browsing and filtering
+  
+  // Relationship linking to User ID (now CUID)
+  seller      User     @relation(fields: [sellerId], references: [id])
+  sellerId    String   // Foreign key linking to User ID (CUID)
+  
+  reviews     Review[]
+
+  @@map("products")
+}
+
+// 3. REVIEW MODEL (Using CUID)
+model Review {
+  id          String    @id @default(cuid()) // CRITICAL FIX: Use CUID
+  rating      Int
+  comment     String?   @db.Text
+  createdAt   DateTime  @default(now())
+
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   String
+  
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+
+  @@unique([userId, productId])
+  @@map("reviews")
 }

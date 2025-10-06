@@ -32,8 +32,8 @@ async function main() {
   console.log(`Start seeding ...`);
 
   // Step 1: Delete all existing products to start from a clean state
-  await prisma.product.deleteMany({});
-  console.log('Deleted all existing products.');
+  //await prisma.product.deleteMany({});
+  //console.log('Deleted all existing products.');
 
   // Step 2: Create the 20 new products
   await prisma.product.createMany({
