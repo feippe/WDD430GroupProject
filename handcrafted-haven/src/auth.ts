@@ -1,13 +1,12 @@
-// src/auth.ts
-
 import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
+
 // Assuming 'prisma' is in src/lib/prisma.ts and you are importing it relatively from src/auth.ts
 import prisma from './lib/prisma'; 
 import Credentials from 'next-auth/providers/credentials';
 import * as bcrypt from 'bcryptjs';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const authConfig = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' },
   providers: [
@@ -72,3 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+export const { auth, signIn, signOut, handlers } = authConfig;
+
+export default authConfig; 

@@ -1,7 +1,7 @@
-// src/app/api/reviews/route.ts
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth'; 
 import prisma from '@/lib/prisma'; 
+import { auth } from '@/lib/auth-server';
+
 
 // -----------------------------------------------------------
 // POST: Create a New Review (Any Authenticated User)
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   const session = await auth();
 
   // 1. Authentication Check (any user)
-  if (!session) {
+  if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ message: 'Authorization required: Must be signed in to leave a review.' }, { status: 401 });
   }
 

@@ -1,16 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import styles from './ProductPage.module.css';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
+import ReviewSection from '@/components/ReviewSection';
 
-const prisma = new PrismaClient();
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
-}
 
 // Define the shape of the data fetched from your API
 type ProductData = {
@@ -18,25 +12,37 @@ type ProductData = {
     name: string;
     description: string;
     price: number;
-    // Add other fields...
+    category: string; 
+    imageUrl: string; 
 }
 
-type ProductPageProps = {
+interface ProductPageProps {
   params: {
-    id: string; // The product ID from the URL
-  }
+    id: string;
+  };
 }
 
 // Function to fetch product details (GET /api/products/[id])
 async function getProduct(productId: string): Promise<ProductData | null> {
+    // Determine the base URL dynamically:
+    // 1. Use VERCEL_URL (available during Vercel server-side build/runtime)
+    // 2. Fallback to the local environment variable
+    // 3. Final fallback to http://localhost:3000 (if variable is missing)
+    const vercelUrl = process.env.VERCEL_URL;
+    const localUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    // Construct the base URL using standard Next.js environment logic
+    const baseUrl = vercelUrl 
+        ? `https://${vercelUrl}` 
+        : (localUrl || 'http://localhost:3000');
     try {
-        // NOTE: Use internal Next.js fetching if possible, or ensure NEXT_PUBLIC_BASE_URL is set
-        const productResponse = await fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/products/${productId}`, {
+        // Construct the full API URL
+        const productResponse = await fetch(`${baseUrl}/api/products/${productId}`, {
             cache: 'no-store' // Do not cache, ensuring dynamic content
         });
-        
-        if (!productResponse.ok) return null;
-
+        if (!productResponse.ok) {
+            console.error(`API response failed with status: ${productResponse.status}`);
+            return null;
+        }
         return productResponse.json();
     } catch (error) {
         console.error("Failed to fetch product data:", error);
@@ -52,35 +58,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
     return <main className="p-8"><h1>Product Not Found</h1><p>The requested handcrafted item does not exist.</p></main>;
   }
 
-  // Use state or a mechanism to force refresh the ReviewList from the parent component.
-  // We'll use a simple timestamp key for the client component to force re-render.
-  const now = Date.now(); 
-
   return (
-    <main className="p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-4xl font-extrabold mb-2">{product.name}</h1>
-        <p className="text-2xl text-indigo-600 mb-4">${product.price.toFixed(2)}</p>
-        <p className="text-gray-700 leading-relaxed">{product.description}</p>
-        
-        {/* Placeholder for Product Image */}
-        <div className="my-6 h-64 bg-gray-200 flex items-center justify-center rounded-lg">
-            
+    <main  className="mx-auto max-w-7xl px-4 py-12 md:px-6 bg-white min-h-screen relative z-10"> 
+      
+      <div className="bg-white p-6 md:p-10 rounded-xl shadow-2xl shadow-stone-300">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
+          <div className="w-full aspect-square relative rounded-lg overflow-hidden shadow-xl border border-stone-200">
+            <img 
+              src={product.imageUrl} 
+              alt={product.name}  
+              className="object-cover w-full h-full transition duration-300 hover:scale-[1.03]"
+            />
+          </div>
+          <div className="flex flex-col justify-start">
+            {/* ... h1, precio, botón, descripción, etc. ... */}
+          </div>
         </div>
       </div>
       
-      <hr />
-
-      {/* Reviews Section */}
-      <ReviewList productId={productId} key={productId + '-list-' + now} /> 
-      
-      {/* Review Form (The form handles its own refresh logic) */}
-      <ReviewForm productId={productId} onReviewSubmitted={() => { 
-        // Simple client-side refresh logic can be complex in pure App Router.
-        // For simplicity, the ReviewList component will handle fetching upon mount.
-        // In a complex app, you'd use React Context or a state management solution (Zustand/Redux) here.
-        // For now, the ReviewList component is designed to fetch upon mount/update.
-      }} />
+      {/* Sección de Reviews */}
+      <div className="mt-12 p-6 md:p-10 bg-white rounded-xl shadow-lg shadow-stone-200">
+        <ReviewSection productId={productId} />
+      </div>
 
     </main>
   );

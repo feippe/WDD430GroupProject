@@ -22,6 +22,7 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ productId, rating, comment }),
+                credentials: 'include'
             });
 
             if (response.ok) {
