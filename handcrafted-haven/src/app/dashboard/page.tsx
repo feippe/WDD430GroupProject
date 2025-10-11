@@ -1,35 +1,38 @@
-import { redirect } from 'next/navigation';
-import AddProductForm from '../../components/AddProductForm';
-import SellerProductList from '../../components/SellerProductList';
-import { getSellerProducts } from '@/lib/product-actions';
 import { getSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
+import { getSellerProducts } from '@/lib/product-actions'; // Assuming the function is here
+import SellerProductList from '@/components/SellerProductList'; // Assuming you have this component
 
-
-export default async function SellerDashboardPage() {
+export default async function DashboardPage() {
   const session = await getSession();
 
-  // Protect the page
-  if (!session.isLoggedIn) {
+  if (!session.isLoggedIn || session.role !== 'seller') {
     redirect('/login');
   }
 
   const products = await getSellerProducts();
 
-  return (
-    <main className="p-4 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Seller Dashboard</h1>
-      <p className="mb-8">Welcome, {session.userId || session.email}.</p>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
-            <AddProductForm /> {/* Keeps the creation form on the side */}
-        </div>
+  if ('error' in products) {
+    return (
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-red-600">Error</h1>
+        <p>Could not load your products: {products.error}</p>
+      </div>
+    );
+  }
 
+  return (
+    <div className="p-4 md:p-8">
+      <h1 className="text-3xl font-bold mb-6">Seller Dashboard</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">{/* Sidebar or other info can go here */}</div>
         <div className="lg:col-span-2">
-            <h2 className="text-2xl font-semibold mb-4">Your Listings ({products?.length || 0})</h2>
-            <SellerProductList products={products || []} /> {/* Pass data to Client Component */}
+          <h2 className="text-2xl font-semibold mb-4">
+            Your Listings ({products.length})
+          </h2>
+          <SellerProductList products={products} />
         </div>
       </div>
-    </main>
+    </div>
   );
 }
