@@ -52,7 +52,6 @@ export default function ReviewList({ productId }: ReviewListProps) {
 
     return (
         <div className="mt-10">
-            <h2 className="text-2xl font-bold mb-4">Customer Reviews ({reviews.length})</h2>
             <div className="flex items-center mb-6">
                 <span className="text-xl font-semibold mr-2">{averageRating.toFixed(1)}</span>
                 <span className="text-gray-500">out of 5 stars</span>

@@ -46,7 +46,6 @@ export default function ReviewForm({ productId, onReviewSubmitted }: ReviewFormP
 
     return (
         <div className="mt-8 border-t pt-6">
-            <h3 className="text-xl font-semibold mb-4">Leave a Review</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Rating Input */}
                 <div>

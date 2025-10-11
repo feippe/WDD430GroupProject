@@ -1,54 +1,47 @@
-import { NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 import prisma from '@/lib/prisma'; 
-import { auth } from '@/lib/auth-server';
+import { NextResponse } from 'next/server';
 
 
 // -----------------------------------------------------------
 // POST: Create a New Review (Any Authenticated User)
 // -----------------------------------------------------------
 export async function POST(request: Request) {
-  const session = await auth();
+  const session = await getSession();
 
-  // 1. Authentication Check (any user)
-  if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ message: 'Authorization required: Must be signed in to leave a review.' }, { status: 401 });
+  if (!session.isLoggedIn || !session.userId) {
+    return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
   }
 
-  const userId = session.user.id;
-  const data = await request.json();
-  const { productId, rating, comment } = data;
-
   try {
-    // Basic validation (rating is a number between 1 and 5)
-    const numericRating = parseInt(rating);
-    if (isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
-      return NextResponse.json({ message: 'Invalid rating value.' }, { status: 400 });
-    }
+    const body = await request.json();
+    const { productId, rating, comment } = body;
+    const userId = session.userId;
 
-    // 2. Prevent duplicate reviews
     const existingReview = await prisma.review.findFirst({
-        where: { userId: userId, productId: productId },
-    });
-    
-    if (existingReview) {
-        return NextResponse.json({ message: 'You have already reviewed this product.' }, { status: 409 });
-    }
-
-    // 3. Execute creation
-    const newReview = await prisma.review.create({
-      data: {
-        productId,
-        userId, 
-        rating: numericRating,
-        comment,
+      where: {
+        productId: productId,
+        userId: userId,
       },
     });
 
-    return NextResponse.json(newReview, { status: 201 });
-    
+    if (existingReview) {
+      return NextResponse.json({ message: 'You have already reviewed this product' }, { status: 409 }); // 409 Conflict
+    }
+
+    const newReview = await prisma.review.create({
+      data: {
+        rating: Number(rating),
+        comment: comment,
+        productId: productId,
+        userId: userId,
+      },
+    });
+
+    return NextResponse.json(newReview, { status: 201 }); // 201 Created
   } catch (error) {
-    console.error('Error creating review:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    console.error('Failed to create review:', error);
+    return NextResponse.json({ message: 'Failed to submit review' }, { status: 500 });
   }
 }
 

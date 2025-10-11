@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/session';
 
 
 type RouteParams = { 
@@ -13,18 +13,13 @@ type RouteParams = {
 export async function GET(request: Request, { params }: RouteParams) {
   try {
     const productId = params.id;
-    
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      // include: { reviews: true }, 
     });
-
     if (!product) {
       return NextResponse.json({ message: 'Product not found' }, { status: 404 });
     }
-
     return NextResponse.json(product, { status: 200 });
-
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
@@ -35,16 +30,15 @@ export async function GET(request: Request, { params }: RouteParams) {
 // PUT: Update a Product (Seller Owner Only)
 // -----------------------------------------------------------
 export async function PUT(request: Request, { params }: RouteParams) {
-  const session = await auth();
+  const session = await getSession();
 
-  // 1. Authentication and Role Verification
-  if (!session || session.user.role !== 'seller') {
+  if (!session.isLoggedIn || session.role !== 'seller') {
     return NextResponse.json({ message: 'Forbidden: Only authenticated sellers can update products.' }, { status: 403 });
   }
 
   const productId = params.id;
   const data = await request.json();
-  const userId = session.user.id;
+  const userId = session.userId;
 
   try {
     const existingProduct = await prisma.product.findUnique({ where: { id: productId } });
@@ -56,10 +50,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
       data: {
-        ...(data.name && { name: data.name }),
-        ...(data.description && { description: data.description }),
-        ...(data.price && { price: parseFloat(data.price) }), 
-        ...(data.category && { category: data.category }),
+        name: data.name,
+        description: data.description,
+        price: data.price ? parseFloat(data.price) : undefined,
+        category: data.category,
       },
     });
 
@@ -75,14 +69,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
 // DELETE: Delete a Product (Seller Owner Only)
 // -----------------------------------------------------------
 export async function DELETE(request: Request, { params }: RouteParams) {
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session || session.user.role !== 'seller') {
+  if (!session.isLoggedIn || session.role !== 'seller') {
     return NextResponse.json({ message: 'Forbidden: Only authenticated sellers can delete products.' }, { status: 403 });
   }
 
   const productId = params.id;
-  const userId = session.user.id;
+  const userId = session.userId;
 
   try {
     const existingProduct = await prisma.product.findUnique({ where: { id: productId } });
@@ -93,7 +87,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     await prisma.product.delete({ where: { id: productId } });
 
-    return NextResponse.json({ message: 'Product deleted successfully.' }, { status: 204 });
+    return new NextResponse(null, { status: 204 }); 
 
   } catch (error) {
     console.error('Error deleting product:', error);
