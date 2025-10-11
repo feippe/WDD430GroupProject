@@ -1,16 +1,16 @@
 import { redirect } from 'next/navigation';
-import * as authModule from '../../auth';
 import AddProductForm from '../../components/AddProductForm';
 import SellerProductList from '../../components/SellerProductList';
 import { getSellerProducts } from '@/lib/product-actions';
+import { getSession } from '@/lib/session';
 
-const auth = authModule.auth;
 
 export default async function SellerDashboardPage() {
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session || session.user.role !== 'seller') {
-    redirect('/api/auth/signin'); 
+  // Protect the page
+  if (!session.isLoggedIn) {
+    redirect('/login');
   }
 
   const products = await getSellerProducts();
@@ -18,7 +18,7 @@ export default async function SellerDashboardPage() {
   return (
     <main className="p-4 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Seller Dashboard</h1>
-      <p className="mb-8">Welcome, {session.user.name || session.user.email}.</p>
+      <p className="mb-8">Welcome, {session.userId || session.email}.</p>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">

@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 type ReviewFormProps = {
     productId: string;
-    // Callback function to refresh the list of reviews after a successful submission
     onReviewSubmitted: () => void; 
 };
 

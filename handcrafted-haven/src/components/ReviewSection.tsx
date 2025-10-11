@@ -4,6 +4,7 @@ import ReviewForm from './ReviewForm';
 import ReviewList from './ReviewList';
 import { useState } from 'react';
 import Link from 'next/link'; // Importamos Link
+import styles from 'ReviewSection.module.css';
 
 type ReviewSectionProps = {
     productId: string;

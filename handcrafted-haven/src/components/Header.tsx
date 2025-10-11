@@ -36,10 +36,10 @@ export default async function Header() {
                 <UserCircle size={20} />
                 <span>{session.email}</span>
               </Link>
-              <Link href="/api/logout" className={`${styles.link} ${styles.logoutButton}`}>
+              <a href="/api/logout" className={`${styles.link} ${styles.logoutButton}`}>
                 <LogOut size={16} />
                 <span>Logout</span>
-              </Link>
+              </a>
             </>
           ) : (
             // --- User is Logged Out ---

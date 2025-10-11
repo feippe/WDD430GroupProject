@@ -1,21 +1,19 @@
-import prisma from '@/lib/prisma';
-import { auth } from '../auth';
+'use server';
 
-/**
- * Fetches all products belonging to the authenticated seller.
- * @returns An array of products or null if not authorized.
- */
+import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
+
 export async function getSellerProducts() {
-  const session = await auth();
- 
-  // Security check: must be a seller
-  if (!session || session.user.role !== 'seller') {
-    return null; 
+  const session = await getSession();
+
+  if (!session.isLoggedIn || session.role !== 'seller') {
+    return { error: 'Forbidden' };
   }
 
   try {
     const products = await prisma.product.findMany({
-        where: { sellerId: session.user.id },
+        where: { sellerId: session.userId },
         orderBy: { createdAt: 'desc' },
         select: {
             id: true,

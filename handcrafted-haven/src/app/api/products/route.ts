@@ -1,47 +1,31 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth'; 
 import prisma from '@/lib/prisma'; 
+import { getSession } from '@/lib/session'; 
 
 // -----------------------------------------------------------
 // POST: Create a New Product (Seller Only)
 // -----------------------------------------------------------
 export async function POST(request: Request) {
-  const session = await auth();
-
-  if (!session || session.user.role !== 'seller') {
+  const session = await getSession();
+  if (!session.isLoggedIn || session.role !== 'seller') {
     return NextResponse.json({ message: 'Forbidden: Only sellers can create products.' }, { status: 403 });
   }
 
-  const userId = session.user.id;
-  const data = await request.json();
-
   try {
+    const data = await request.json();
     const newProduct = await prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
         category: data.category,
-        sellerId: userId, 
+        imageUrl: data.imageUrl,
+        sellerId: session.userId, // Assign product to the logged-in seller
       },
     });
-
     return NextResponse.json(newProduct, { status: 201 });
-    
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Failed to create product:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
-
-// -----------------------------------------------------------
-// GET: Fetch All Products (Public Access) - Placeholder if not done
-// -----------------------------------------------------------
-// export async function GET(request: Request) {
-//   try {
-//     const products = await prisma.product.findMany({});
-//     return NextResponse.json(products, { status: 200 });
-//   } catch (error) {
-//     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
-//   }
-// }

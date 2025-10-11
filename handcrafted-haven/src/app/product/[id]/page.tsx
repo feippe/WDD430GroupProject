@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import ReviewSection from '@/components/ReviewSection';
-import { getSession } from '@/lib/session'; // <-- 1. AÑADE ESTA LÍNEA
+import { getSession } from '@/lib/session';
+import styles from './product.module.css';
 
 type ProductData = {
     id: string;
@@ -50,28 +50,33 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12 md:px-6 bg-white min-h-screen relative z-10"> 
+    <main className={styles.mainContainer}> 
       
-      <div className="bg-white p-6 md:p-10 rounded-xl shadow-2xl shadow-stone-300">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
-          <div className="w-full aspect-square relative rounded-lg overflow-hidden shadow-xl border border-stone-200">
-            <img 
-              src={product.imageUrl} 
-              alt={product.name}  
-              className="object-cover w-full h-full transition duration-300 hover:scale-[1.03]"
-            />
-          </div>
-          <div className="flex flex-col justify-start">
-            {/* ... tu contenido de producto (h1, precio, botón, etc.) ... */}
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-2xl text-gray-700 mt-2">${product.price}</p>
-            <p className="mt-4 text-gray-600">{product.description}</p>
+      <div className={styles.productGrid}>
+        {/* --- Product Image --- */}
+        <div className={styles.imageContainer}>
+          <img 
+            src={product.imageUrl} 
+            alt={product.name}  
+            className={styles.image}
+          />
+        </div>
+
+        {/* --- Product Info --- */}
+        <div className={styles.infoContainer}>
+          <h1 className={styles.productName}>{product.name}</h1>
+          <p className={styles.productPrice}>${product.price}</p>
+          <p className={styles.productDescription}>{product.description}</p>
+          
+          <div className={styles.ctaContainer}>
+            <input type="number" defaultValue="1" min="1" className={styles.quantitySelector} />
+            <button className={styles.addToCartButton}>Add to Cart</button>
           </div>
         </div>
       </div>
       
-      {/* Sección de Reviews */}
-      <div className="mt-12 p-6 md:p-10 bg-white rounded-xl shadow-lg shadow-stone-200">
+      {/* --- Reviews Section --- */}
+      <div className={styles.reviewsContainer}>
         <ReviewSection productId={productId} isLoggedIn={session.isLoggedIn ?? false} />
       </div>
 
